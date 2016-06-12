@@ -6,7 +6,6 @@
 提交悬浮部分的代码，效果如下图
 
 正常播放状态
-
 ![image](https://github.com/djonce/android-stickyvideo/blob/master/Screenshot/6B142384-9C3D-43CC-B140-E7CA3048AEAB.png)
 
 下滑缩放状态
