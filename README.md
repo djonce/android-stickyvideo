@@ -7,13 +7,13 @@
 
 正常播放状态
 
-![image](device-2016-06-12-214346.png)
+![image](https://github.com/djonce/android-stickyvideo/tree/master/Screenshot/device-2016-06-12-214346.png)
 
 下滑缩放状态
-![image](device-2016-06-12-214433.png)
+![image](https://github.com/djonce/android-stickyvideo/tree/master/Screenshot/device-2016-06-12-214433.png)
 
 
 放大全屏状态
-![image](device-2016-06-12-214528.png)
+![image](https://github.com/djonce/android-stickyvideo/tree/master/Screenshot/device-2016-06-12-214528.png)
 
 
