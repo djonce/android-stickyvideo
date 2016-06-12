@@ -106,7 +106,7 @@
         android:indeterminateOnly="false"
         android:max="1000"
         android:maxHeight="2.0dip"
-        android:minHeight="1.0dip"
+        android:minHeight="2.0dip"
         android:progressDrawable="@drawable/detail_process_bar"
         android:thumbOffset="2dp" />
 </RelativeLayout>

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">android-stickyvideo</string>
+    <string name="title">Sample Sticky Video</string>
 </resources>
