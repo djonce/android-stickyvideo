@@ -1,8 +1,6 @@
 package com.djonce.wangj.media;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -21,6 +19,8 @@ import java.util.Formatter;
 import java.util.Locale;
 
 /**
+ * 播放器控制面板
+ *
  * Created by wangj on 2016/5/23.
  */
 public class MediaPlayerController extends FrameLayout implements IMediaController {
@@ -45,8 +45,8 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
     private static final int sMaxTimeout = 3600000;
     private static final int FADE_OUT = 1;
     private static final int SHOW_PROGRESS = 2;
-    StringBuilder mFormatBuilder;
-    Formatter mFormatter;
+    private StringBuilder mFormatBuilder;
+    private Formatter mFormatter;
 
     private OnPlayerControllerListener listener;
 
@@ -67,14 +67,6 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         this.mContext = context;
         initControllerView();
     }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public MediaPlayerController(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        this.mContext = context;
-        initControllerView();
-    }
-
 
     private void initControllerView() {
         mContainer = LayoutInflater.from(mContext).inflate(R.layout.media_player_controller_view, null);
@@ -109,6 +101,7 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
     }
 
     public void hideOprateViews() {
+        mShowing = false;
         mVideoMiniProgressbar.setVisibility(VISIBLE);
         mHandler.sendEmptyMessage(SHOW_PROGRESS);
         mVideoPlayBtn.setVisibility(GONE);
@@ -143,6 +136,7 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
     @Override
     public void show(int timeout) {
+        mShowing = true;
 
         if (mPlayer != null && mPlayer.isPlaying()) {
             mVideoPlayBtn.setVisibility(GONE);
@@ -169,6 +163,7 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
                     // 隐藏 mini bar , 停止更新mini bar
                     mVideoMiniProgressbar.setVisibility(GONE);
                     mVideoControlPanel.setVisibility(VISIBLE);
+                    mVideoControlPanel.requestFocus();
                     break;
             }
         }
@@ -214,7 +209,11 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
                     hide();
                     break;
                 case SHOW_PROGRESS:
-                    pos = setProgress();
+                    if (mShowing) {
+                        pos = setSeekBarProgress();
+                    }else  {
+                        pos = setProgress();
+                    }
                     if (!mDragging && mPlayer.isPlaying()) {
                         msg = obtainMessage(SHOW_PROGRESS);
                         sendMessageDelayed(msg, 1000 - (pos % 1000));
@@ -273,6 +272,7 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
             if (duration > 0) {
                 // use long to avoid overflow
                 long pos = 1000L * position / duration;
+                mVideoSeekBar.requestFocus();
                 mVideoSeekBar.setProgress((int) pos);
             }
             int percent = mPlayer.getBufferPercentage();
