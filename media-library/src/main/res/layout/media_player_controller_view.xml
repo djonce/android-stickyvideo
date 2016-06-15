@@ -29,7 +29,6 @@
                 android:textColor="#fff"
                 android:textSize="9sp"
                 android:textStyle="bold"
-
                 />
 
             <SeekBar

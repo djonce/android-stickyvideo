@@ -100,6 +100,16 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onPause() {
+                Log.e(TAG, " --- onPause ---");
+            }
+
+            @Override
+            public void onResume() {
+
+            }
+
+            @Override
             public void onZoomBig() {
                 Log.e(TAG, " --- onZoomBig ---");
                 zoomBig();
@@ -250,6 +260,19 @@ public class MainActivity extends Activity {
             zoomSmall();
         } else {
             finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (videoView != null) {
+            videoView.pause();
         }
     }
 }

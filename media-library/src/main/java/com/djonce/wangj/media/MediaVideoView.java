@@ -428,7 +428,6 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                             Log.d(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:");
                             // 开始播放
 
-
                             break;
                         case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
                             Log.d(TAG, "MEDIA_INFO_BUFFERING_START:");
@@ -672,7 +671,6 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
             switch (getVideoMode()){
                 case NORMAL:
                 case FULL:
-
                     // 暂停
                     if (mMediaPlayer.isPlaying()) {
                         pause();
@@ -773,6 +771,9 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
         mTargetState = STATE_PAUSED;
     }
 
+    /**
+     * 挂起
+     */
     public void suspend() {
         release(false);
     }

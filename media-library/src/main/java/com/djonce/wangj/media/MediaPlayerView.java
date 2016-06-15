@@ -3,10 +3,12 @@ package com.djonce.wangj.media;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -22,8 +24,11 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 public class MediaPlayerView extends RelativeLayout {
     private static final String TAG = MediaPlayerView.class.getSimpleName();
     private Context mContext;
+    private ImageView mImageView;  // 现在视频首帧图片，暂停时显示当前暂停的图片
     private MediaVideoView mediaVideoView;
     private MediaPlayerController mediaPlayerController;
+
+    private boolean isPaused = false; // 是否是点击暂停状态
 
     public MediaPlayerView(Context context) {
         super(context);
@@ -86,9 +91,52 @@ public class MediaPlayerView extends RelativeLayout {
                         break;
                 }
 
+                switch (what) {
+                    case IMediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING:
+                        Log.d(TAG, "MEDIA_INFO_VIDEO_TRACK_LAGGING:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
+                        Log.d(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:");
+                        // 开始播放
 
-                return false;
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
+                        Log.d(TAG, "MEDIA_INFO_BUFFERING_START:");
+                        // 在数据缓冲
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
+                        Log.d(TAG, "MEDIA_INFO_BUFFERING_END:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
+                        Log.d(TAG, "MEDIA_INFO_NETWORK_BANDWIDTH: " + extra);
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_BAD_INTERLEAVING:
+                        Log.d(TAG, "MEDIA_INFO_BAD_INTERLEAVING:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_NOT_SEEKABLE:
+                        Log.d(TAG, "MEDIA_INFO_NOT_SEEKABLE:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_METADATA_UPDATE:
+                        Log.d(TAG, "MEDIA_INFO_METADATA_UPDATE:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_UNSUPPORTED_SUBTITLE:
+                        Log.d(TAG, "MEDIA_INFO_UNSUPPORTED_SUBTITLE:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_SUBTITLE_TIMED_OUT:
+                        Log.d(TAG, "MEDIA_INFO_SUBTITLE_TIMED_OUT:");
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED:
+
+                        Log.d(TAG, "MEDIA_INFO_VIDEO_ROTATION_CHANGED: " + extra);
+
+                        break;
+                    case IMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START:
+                        Log.d(TAG, "MEDIA_INFO_AUDIO_RENDERING_START:");
+                        break;
+                }
+                return true;
             }
+
         });
 
         mediaVideoView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
@@ -120,6 +168,11 @@ public class MediaPlayerView extends RelativeLayout {
                 if (mediaVideoView != null) {
                     mediaVideoView.setVideoMode(MediaVideoView.VideoMode.NORMAL);
                 }
+
+                if (mediaPlayerController != null) {
+                    mediaPlayerController.show();
+                }
+
                 break;
             case SMALL:
                 LayoutParams small = (LayoutParams) getLayoutParams();
@@ -134,7 +187,7 @@ public class MediaPlayerView extends RelativeLayout {
 
                 // 不用显示control panel,只显示progress mini bar
                 if (mediaPlayerController != null) {
-                    mediaPlayerController.hide();
+                    mediaPlayerController.show();
                 }
 
                 break;
@@ -163,13 +216,35 @@ public class MediaPlayerView extends RelativeLayout {
         mediaVideoView.setVideoPath(videoPath);
     }
 
+    /**
+     *  加载视频首页图
+     * @param videoPath
+     * @param imagePath
+     */
+    public void setVideoAndImagePath(String videoPath, String imagePath) {
+        mediaVideoView.setVideoPath(videoPath);
+//        handleImagePath(imagePath);
+    }
+
+//    private void handleImagePath(String imagePath) {
+//        if (mImageView != null && !TextUtils.isEmpty(imagePath)) {
+//
+//        }
+//    }
+
     public void autoStartPlay() {
         mediaPlayerController.autoStartPlay();
     }
 
     public void pause() {
-        mediaPlayerController.pause();
+        mediaPlayerController.onPause();
+        // 截取一张视频图片
+        Log.d(TAG, "pause: 暂停");
     }
 
+    public void resume() {
+        mediaPlayerController.onResume();
+        Log.d(TAG, "resume: 活动");
+    }
 
 }

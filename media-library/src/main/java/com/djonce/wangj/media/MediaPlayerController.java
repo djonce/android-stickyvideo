@@ -104,6 +104,7 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         mShowing = false;
         mVideoMiniProgressbar.setVisibility(VISIBLE);
         mHandler.sendEmptyMessage(SHOW_PROGRESS);
+
         mVideoPlayBtn.setVisibility(GONE);
         // 隐藏开始按钮 显示seek bar， 总时间， 已播时长， 放大按钮
         mVideoControlPanel.setVisibility(GONE);
@@ -121,6 +122,12 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
     @Override
     public void setEnabled(boolean enabled) {
+        // 当前控件是否可用
+        if (enabled) {
+
+        }else {
+
+        }
 
     }
 
@@ -144,35 +151,45 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
         if(timeout > 30000) {
             mVideoPlayBtn.setVisibility(VISIBLE);
+            try {
+                mHandler.removeMessages(SHOW_PROGRESS);
+            } catch (IllegalArgumentException ex) {
+                Log.w("MediaController", "already removed");
+            }
         }
         if (mPlayer != null && mPlayer instanceof MediaVideoView) {
             switch (((MediaVideoView)mPlayer).getVideoMode()) {
                 case SMALL:
                     Log.e(TAG, "-- SMALL --");
 
+                    if (!mPlayer.isPlaying()) {
+                        mVideoPlayBtn.setVisibility(VISIBLE);
+                    }
+
                     // 隐藏 mini bar , 停止更新mini bar
                     mVideoMiniProgressbar.setVisibility(VISIBLE);
                     mVideoControlPanel.setVisibility(GONE);
+
                     break;
                 case NORMAL:
                     Log.e(TAG, "-- NORMAL --");
-
+                    // 当前播放的状态
+                    mIvFullscreenOpen.setImageResource(R.drawable.ds_detail_fullscreen_open);
+                    // 隐藏 mini bar , 停止更新mini bar
+                    mVideoMiniProgressbar.setVisibility(GONE);
+                    mVideoControlPanel.setVisibility(VISIBLE);
+                    break;
                 case FULL:
                     Log.e(TAG, "-- FULL --");
 
                     // 隐藏 mini bar , 停止更新mini bar
                     mVideoMiniProgressbar.setVisibility(GONE);
                     mVideoControlPanel.setVisibility(VISIBLE);
-                    mVideoControlPanel.requestFocus();
+                    mIvFullscreenOpen.setImageResource(R.drawable.ds_detail_fullscreen_close);
                     break;
             }
         }
 
-        try {
-            mHandler.removeMessages(SHOW_PROGRESS);
-        } catch (IllegalArgumentException ex) {
-            Log.w("MediaController", "already removed");
-        }
         // 显示开始按钮 显示seek bar ,总时间， 已播时长， 放大按钮
         setSeekBarProgress();
 
@@ -209,11 +226,8 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
                     hide();
                     break;
                 case SHOW_PROGRESS:
-                    if (mShowing) {
-                        pos = setSeekBarProgress();
-                    }else  {
-                        pos = setProgress();
-                    }
+                    pos = setProgress();
+                    setSeekBarProgress();
                     if (!mDragging && mPlayer.isPlaying()) {
                         msg = obtainMessage(SHOW_PROGRESS);
                         sendMessageDelayed(msg, 1000 - (pos % 1000));
@@ -223,6 +237,11 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         }
     };
 
+    /**
+     * 格式化时长
+     * @param timeMs
+     * @return
+     */
     private String stringForTime(int timeMs) {
         int totalSeconds = timeMs / 1000;
 
@@ -272,7 +291,6 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
             if (duration > 0) {
                 // use long to avoid overflow
                 long pos = 1000L * position / duration;
-                mVideoSeekBar.requestFocus();
                 mVideoSeekBar.setProgress((int) pos);
             }
             int percent = mPlayer.getBufferPercentage();
@@ -294,53 +312,24 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         }
     };
 
-    public void autoStartPlay() {
-        doVideoResume();
-
-        if (listener != null) {
-            listener.onPlay();
-        }
-    }
-
-    public void pause() {
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            mPlayer.pause();
-            // 显示播放按钮
-            show(sMaxTimeout);
-        }
-    }
-
-
     private final OnClickListener mFullScreenOpen = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            // 执行 放大 缩小的功能即可， 显示的功能放在 controller show的时候处理
 
             if (!isFulledStated) {
                 if(listener != null) {
                     listener.onZoomBig();
                 }
                 isFulledStated = true;
-                mIvFullscreenOpen.setImageResource(R.drawable.ds_detail_fullscreen_close);
             }else {
                 if(listener != null) {
                     listener.onZoomSmall();
                 }
                 isFulledStated = false;
-                mIvFullscreenOpen.setImageResource(R.drawable.ds_detail_fullscreen_open);
             }
         }
     };
-
-    private void doVideoResume() {
-
-        if(mPlayer != null) {
-            mPlayer.start();
-            // 隐藏播放按钮
-            show();
-            mVideoPlayBtn.setVisibility(GONE);
-        }
-
-    }
 
     private final SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
@@ -369,13 +358,13 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
             long duration = mPlayer.getDuration();
             long newposition = (duration * progress) / mVideoSeekBar.getMax();
             mPlayer.seekTo((int) newposition);
-            if (mVideoPlayTimeLeft != null)
+            if (mVideoPlayTimeLeft != null){
                 mVideoPlayTimeLeft.setText(stringForTime((int) newposition));
+            }
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar bar) {
-//            setProgress();
             mDragging = false;
             setSeekBarProgress();
 
@@ -385,8 +374,47 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         }
     };
 
+
+    private void doVideoResume() {
+
+        if(mPlayer != null) {
+            mPlayer.start();
+            // 隐藏播放按钮
+            show();
+            mVideoPlayBtn.setVisibility(GONE);
+            mVideoSeekBar.invalidate();
+            setSeekBarProgress();
+        }
+    }
+
+
+    public void autoStartPlay() {
+        doVideoResume();
+        if (listener != null) {
+            listener.onPlay();
+        }
+    }
+
+    public void onPause() {
+        if (mPlayer != null && mPlayer.isPlaying()) {
+            mPlayer.pause();
+            // 显示播放按钮
+            show(sMaxTimeout);
+        }
+    }
+
+    public void onResume() {
+        if (mPlayer != null && !mPlayer.isPlaying()) {
+            autoStartPlay();
+        }
+    }
+
     public interface OnPlayerControllerListener {
-        void onPlay();
+        void onPlay();  // 播放
+
+        void onPause(); // 暂停
+
+        void onResume(); // 开始
 
         void onZoomBig();
 
