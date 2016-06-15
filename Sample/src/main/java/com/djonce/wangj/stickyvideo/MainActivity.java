@@ -3,6 +3,9 @@ package com.djonce.wangj.stickyvideo;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +15,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -123,6 +127,19 @@ public class MainActivity extends Activity {
             @Override
             public void onComplete() {
                 Log.e(TAG, " --- onComplete ---");
+            }
+        });
+
+        videoView.setOnLoadImageListener(new MediaPlayerView.OnLoadImageListener() {
+            @Override
+            public void onLoadImage(ImageView imageView, String imagePath) {
+
+            }
+
+            @Override
+            public Bitmap onCutImage(ImageView imageView, String imagePath) {
+                imageView.setImageBitmap(cutVideoBitmap(imagePath));
+                return null;
             }
         });
 
@@ -274,5 +291,27 @@ public class MainActivity extends Activity {
         if (videoView != null) {
             videoView.pause();
         }
+    }
+
+    private Bitmap cutVideoBitmap(String videoPath) {
+        Log.e(TAG, "cutVideoBitmap: " + videoPath );
+        Bitmap bitmap;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource( videoPath);
+            Log.e(TAG, "cutVideoBitmap: " + videoView.getCurrentPlayPosition());
+            bitmap = retriever.getFrameAtTime(videoView.getCurrentPlayPosition(), MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            try {
+                retriever.release();
+            } catch (RuntimeException ex) {
+                // Ignore failures while cleaning up.
+                ex.printStackTrace();
+            }
+        }
+        return bitmap;
     }
 }

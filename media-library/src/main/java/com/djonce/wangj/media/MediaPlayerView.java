@@ -2,6 +2,7 @@ package com.djonce.wangj.media;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -29,6 +30,8 @@ public class MediaPlayerView extends RelativeLayout {
     private MediaPlayerController mediaPlayerController;
 
     private boolean isPaused = false; // 是否是点击暂停状态
+    private String videoPath;
+    private OnLoadImageListener loadImageListener;
 
     public MediaPlayerView(Context context) {
         super(context);
@@ -57,6 +60,7 @@ public class MediaPlayerView extends RelativeLayout {
         View mContainer = LayoutInflater.from(context).inflate(R.layout.media_player_view, null);
         mediaVideoView = (MediaVideoView) mContainer.findViewById(R.id.media_video_view);
         mediaPlayerController = (MediaPlayerController) mContainer.findViewById(R.id.media_player_controller);
+        mImageView = (ImageView) mContainer.findViewById(R.id.media_video_img);
         mediaPlayerController.setMediaPlayer(mediaVideoView);
         mediaVideoView.setMediaController(mediaPlayerController);
 
@@ -208,11 +212,16 @@ public class MediaPlayerView extends RelativeLayout {
         }
     }
 
+    public int getCurrentPlayPosition() {
+        return mediaVideoView.getCurrentPosition();
+    }
+
     public void stopPlayback() {
         mediaVideoView.stopPlayback();
     }
 
     public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
         mediaVideoView.setVideoPath(videoPath);
     }
 
@@ -223,14 +232,20 @@ public class MediaPlayerView extends RelativeLayout {
      */
     public void setVideoAndImagePath(String videoPath, String imagePath) {
         mediaVideoView.setVideoPath(videoPath);
-//        handleImagePath(imagePath);
+        handleImagePath(imagePath);
     }
 
-//    private void handleImagePath(String imagePath) {
-//        if (mImageView != null && !TextUtils.isEmpty(imagePath)) {
-//
-//        }
-//    }
+    public void setOnLoadImageListener(OnLoadImageListener loadImageListener) {
+        this.loadImageListener = loadImageListener;
+    }
+
+    private void handleImagePath(String imagePath) {
+        if (mImageView != null && !TextUtils.isEmpty(imagePath)) {
+            if (loadImageListener != null) {
+                loadImageListener.onLoadImage(mImageView, imagePath);
+            }
+        }
+    }
 
     public void autoStartPlay() {
         mediaPlayerController.autoStartPlay();
@@ -239,12 +254,21 @@ public class MediaPlayerView extends RelativeLayout {
     public void pause() {
         mediaPlayerController.onPause();
         // 截取一张视频图片
+        if (loadImageListener != null) {
+            loadImageListener.onCutImage(mImageView, videoPath);
+        }
         Log.d(TAG, "pause: 暂停");
     }
 
     public void resume() {
         mediaPlayerController.onResume();
         Log.d(TAG, "resume: 活动");
+    }
+
+    public interface OnLoadImageListener {
+        void onLoadImage(ImageView imageView, String imagePath);
+
+        Bitmap onCutImage(ImageView imageView, String imagePath); // 截屏图片
     }
 
 }
