@@ -482,9 +482,9 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                     Log.d(TAG, "Error: " + framework_err + "," + impl_err);
                     mCurrentState = STATE_ERROR;
                     mTargetState = STATE_ERROR;
-                    if (mMediaController != null) {
-                        mMediaController.hide();
-                    }
+//                    if (mMediaController != null) {
+//                        mMediaController.hide();
+//                    }
 
                     /* If an error handler has been supplied, use it and finish. */
                     if (mOnErrorListener != null) {
@@ -670,6 +670,12 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
             Log.e(TAG, "onTouchEvent: " + getVideoMode().name());
             switch (getVideoMode()){
                 case NORMAL:
+                    if (mMediaPlayer.isPlaying()) {
+                        pause();
+                        mMediaController.show(3600000);
+                    }
+
+                    break;
                 case FULL:
                     // 暂停
                     if (mMediaPlayer.isPlaying()) {
@@ -683,7 +689,9 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                     break;
                 case SMALL:
                     // 缩小状态下，不可点击
-
+                    if (mMediaPlayer.isPlaying()) {
+                        //
+                    }
                     return true;
                 default:
                     toggleMediaControlsVisiblity();

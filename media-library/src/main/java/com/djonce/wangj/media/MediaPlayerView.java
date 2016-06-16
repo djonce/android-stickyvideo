@@ -101,7 +101,7 @@ public class MediaPlayerView extends RelativeLayout {
                         break;
                     case IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
                         Log.d(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:");
-                        // 开始播放
+                        // 第一次播放 开始播放
 
                         break;
                     case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
@@ -119,6 +119,8 @@ public class MediaPlayerView extends RelativeLayout {
                         break;
                     case IMediaPlayer.MEDIA_INFO_NOT_SEEKABLE:
                         Log.d(TAG, "MEDIA_INFO_NOT_SEEKABLE:");
+                        // 不可seek
+
                         break;
                     case IMediaPlayer.MEDIA_INFO_METADATA_UPDATE:
                         Log.d(TAG, "MEDIA_INFO_METADATA_UPDATE:");
@@ -254,9 +256,6 @@ public class MediaPlayerView extends RelativeLayout {
     public void pause() {
         mediaPlayerController.onPause();
         // 截取一张视频图片
-        if (loadImageListener != null) {
-            loadImageListener.onCutImage(mImageView, videoPath);
-        }
         Log.d(TAG, "pause: 暂停");
     }
 
@@ -267,8 +266,6 @@ public class MediaPlayerView extends RelativeLayout {
 
     public interface OnLoadImageListener {
         void onLoadImage(ImageView imageView, String imagePath);
-
-        Bitmap onCutImage(ImageView imageView, String imagePath); // 截屏图片
     }
 
 }

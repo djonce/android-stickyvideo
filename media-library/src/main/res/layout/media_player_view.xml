@@ -5,17 +5,18 @@
     android:orientation="vertical"
     >
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/media_video_img"
+        />
+
     <com.djonce.wangj.media.MediaVideoView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/media_video_view"
        />
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/media_video_img"
-        />
     <com.djonce.wangj.media.MediaPlayerController
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

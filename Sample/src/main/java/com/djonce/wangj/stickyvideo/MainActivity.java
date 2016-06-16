@@ -135,12 +135,6 @@ public class MainActivity extends Activity {
             public void onLoadImage(ImageView imageView, String imagePath) {
 
             }
-
-            @Override
-            public Bitmap onCutImage(ImageView imageView, String imagePath) {
-                imageView.setImageBitmap(cutVideoBitmap(imagePath));
-                return null;
-            }
         });
 
     }
@@ -293,25 +287,4 @@ public class MainActivity extends Activity {
         }
     }
 
-    private Bitmap cutVideoBitmap(String videoPath) {
-        Log.e(TAG, "cutVideoBitmap: " + videoPath );
-        Bitmap bitmap;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource( videoPath);
-            Log.e(TAG, "cutVideoBitmap: " + videoView.getCurrentPlayPosition());
-            bitmap = retriever.getFrameAtTime(videoView.getCurrentPlayPosition(), MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        } finally {
-            try {
-                retriever.release();
-            } catch (RuntimeException ex) {
-                // Ignore failures while cleaning up.
-                ex.printStackTrace();
-            }
-        }
-        return bitmap;
-    }
 }
