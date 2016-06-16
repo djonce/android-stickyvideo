@@ -2,7 +2,6 @@ package com.djonce.wangj.media;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -29,9 +28,8 @@ public class MediaPlayerView extends RelativeLayout {
     private MediaVideoView mediaVideoView;
     private MediaPlayerController mediaPlayerController;
 
-    private boolean isPaused = false; // 是否是点击暂停状态
-    private String videoPath;
     private OnLoadImageListener loadImageListener;
+    private OnMediaPlayerStateListener playerStateListener;
 
     public MediaPlayerView(Context context) {
         super(context);
@@ -52,6 +50,24 @@ public class MediaPlayerView extends RelativeLayout {
     public MediaPlayerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initView(context);
+    }
+
+    /**
+     * 设置控制面板 监听事件
+     * @param playerControllerListener
+     */
+    public void setOnPlayerControllerListener(MediaPlayerController.OnPlayerControllerListener playerControllerListener) {
+        if (playerControllerListener != null) {
+            mediaPlayerController.setOnPlayerControllerListener(playerControllerListener);
+        }
+    }
+
+    /**
+     * 设置播放器播放状态监听
+     * @param playerStateListener
+     */
+    public void setPlayerStateListener(OnMediaPlayerStateListener playerStateListener) {
+        this.playerStateListener = playerStateListener;
     }
 
     private void initView(Context context) {
@@ -82,6 +98,9 @@ public class MediaPlayerView extends RelativeLayout {
                 if (mediaPlayerController != null) {
                     mediaPlayerController.show(360000);
                 }
+                if (playerStateListener != null) {
+                    playerStateListener.onCompleted(mp);
+                }
             }
         });
 
@@ -102,14 +121,23 @@ public class MediaPlayerView extends RelativeLayout {
                     case IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
                         Log.d(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:");
                         // 第一次播放 开始播放
-
+                        if (playerStateListener != null) {
+                            playerStateListener.onFirstPlay();
+                        }
                         break;
                     case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
                         Log.d(TAG, "MEDIA_INFO_BUFFERING_START:");
                         // 在数据缓冲
+                        if (playerStateListener != null) {
+                            playerStateListener.onBufferStart();
+                        }
                         break;
                     case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
                         Log.d(TAG, "MEDIA_INFO_BUFFERING_END:");
+
+                        if (playerStateListener != null) {
+                            playerStateListener.onBufferEnd();
+                        }
                         break;
                     case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
                         Log.d(TAG, "MEDIA_INFO_NETWORK_BANDWIDTH: " + extra);
@@ -150,19 +178,16 @@ public class MediaPlayerView extends RelativeLayout {
             public boolean onError(IMediaPlayer mp, int what, int extra) {
                 // 显示播放按钮
 
-                Log.e(TAG, " on error ");
-
+                // 处理异常
+                if (playerStateListener != null) {
+                    playerStateListener.onError(mp, what, extra);
+                }
                 return false;
             }
         });
+
     }
 
-
-    public void setOnPlayerControllerListener(MediaPlayerController.OnPlayerControllerListener playerControllerListener) {
-        if (playerControllerListener != null) {
-            mediaPlayerController.setOnPlayerControllerListener(playerControllerListener);
-        }
-    }
 
     public void setVideoShowMode(MediaVideoView.VideoMode mode) {
         switch (mode) {
@@ -223,7 +248,6 @@ public class MediaPlayerView extends RelativeLayout {
     }
 
     public void setVideoPath(String videoPath) {
-        this.videoPath = videoPath;
         mediaVideoView.setVideoPath(videoPath);
     }
 
@@ -253,15 +277,15 @@ public class MediaPlayerView extends RelativeLayout {
         mediaPlayerController.autoStartPlay();
     }
 
-    public void pause() {
+    public void onPause() {
         mediaPlayerController.onPause();
         // 截取一张视频图片
-        Log.d(TAG, "pause: 暂停");
+        Log.d(TAG, "onPause: 暂停");
     }
 
-    public void resume() {
+    public void onResume() {
         mediaPlayerController.onResume();
-        Log.d(TAG, "resume: 活动");
+        Log.d(TAG, "onResume: 活动");
     }
 
     public interface OnLoadImageListener {

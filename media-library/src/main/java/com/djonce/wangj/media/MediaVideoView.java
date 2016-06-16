@@ -52,7 +52,7 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
     // mCurrentState is a VideoView object's current state.
     // mTargetState is the state that a method caller intends to reach.
     // For instance, regardless the VideoView object's current state,
-    // calling pause() intends to bring the object to a target state
+    // calling onPause() intends to bring the object to a target state
     // of STATE_PAUSED.
     private int mCurrentState = STATE_IDLE;
     private int mTargetState = STATE_IDLE;
@@ -427,15 +427,10 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                         case IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
                             Log.d(TAG, "MEDIA_INFO_VIDEO_RENDERING_START:");
                             // 开始播放
-
                             break;
                         case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
                             Log.d(TAG, "MEDIA_INFO_BUFFERING_START:");
                             // 在数据缓冲
-                            if(mMediaController != null) {
-                                mMediaController.showProgress(true);
-                            }
-
                             break;
                         case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
 
