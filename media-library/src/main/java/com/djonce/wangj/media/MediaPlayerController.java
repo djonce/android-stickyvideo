@@ -188,9 +188,6 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
             }
         }
 
-        // 显示开始按钮 显示seek bar ,总时间， 已播时长， 放大按钮
-        setSeekBarProgress();
-
         if (timeout != 0) {
             mHandler.removeMessages(FADE_OUT);
             Message msg = mHandler.obtainMessage(FADE_OUT);
@@ -375,6 +372,10 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
             show(mPlayer.isPlaying() ? sDefaultTimeout: sMaxTimeout);
 
+            if (listener != null) {
+                listener.onSeekPlay(mVideoSeekBar.getProgress(), mPlayer.getCurrentPosition());
+            }
+
             autoStartPlay();
         }
     };
@@ -390,10 +391,10 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
             mVideoPlayBtn.setVisibility(GONE);
             mVideoSeekBar.invalidate();
+            mVideoMiniProgressbar.invalidate();
             setSeekBarProgress();
         }
     }
-
 
     public void autoStartPlay() {
         doVideoResume();
@@ -408,16 +409,27 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
             // 显示播放按钮
             show(sMaxTimeout);
         }
+
+        if(listener != null) {
+            listener.onPause();
+        }
     }
 
     public void onResume() {
         if (mPlayer != null && !mPlayer.isPlaying()) {
             autoStartPlay();
         }
+
+        if(listener != null) {
+            listener.onResume();
+        }
     }
 
     public interface OnPlayerControllerListener {
+
         void onPlay();  // 播放
+
+        void onSeekPlay(int position, long duration); // 调整进度
 
         void onPause(); // 暂停
 
@@ -427,7 +439,6 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
         void onZoomSmall();
 
-        void onComplete();
     }
 
 }
