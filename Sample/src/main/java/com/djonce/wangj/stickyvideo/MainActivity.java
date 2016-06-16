@@ -3,9 +3,6 @@ package com.djonce.wangj.stickyvideo;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,12 +20,14 @@ import com.djonce.wangj.media.DisplayUtils;
 import com.djonce.wangj.media.MediaPlayerController;
 import com.djonce.wangj.media.MediaPlayerView;
 import com.djonce.wangj.media.MediaVideoView;
+import com.djonce.wangj.media.OnMediaPlayerStateListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 public class MainActivity extends Activity {
 
@@ -104,29 +103,72 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onSeekPlay(int position, long duration) {
+                Log.e(TAG, " --- onSeekPlay -- position:-" + position + " duration :" + duration);
+            }
+
+            @Override
             public void onPause() {
                 Log.e(TAG, " --- onPause ---");
             }
 
             @Override
             public void onResume() {
-
+                Log.e(TAG, " --- onResume ---");
             }
 
             @Override
             public void onZoomBig() {
                 Log.e(TAG, " --- onZoomBig ---");
                 zoomBig();
+                videoView.onResume();
             }
 
             @Override
             public void onZoomSmall() {
+                Log.e(TAG, " --- onZoomSmall ---");
                 zoomSmall();
             }
 
+        });
+
+        videoView.setPlayerStateListener(new OnMediaPlayerStateListener(){
+
             @Override
-            public void onComplete() {
-                Log.e(TAG, " --- onComplete ---");
+            public void onFirstPlay() {
+                super.onFirstPlay();
+                Log.e(TAG, " --- onFirstPlay ---");
+            }
+
+            @Override
+            public void onClickPlay() {
+                super.onClickPlay();
+                Log.e(TAG, " --- onClickPlay ---");
+            }
+
+            @Override
+            public void onSeekPlay() {
+                Log.e(TAG, " --- onSeekPlay ---");
+            }
+
+            @Override
+            public void onPause() {
+                Log.e(TAG, " --- onPause ---");
+            }
+
+            @Override
+            public void onResume() {
+                Log.e(TAG, " --- onResume ---");
+            }
+
+            @Override
+            public void onError(IMediaPlayer mp, int what, int extra) {
+                Log.e(TAG, " --- onError ---" + " what :" + what + " extra :" + extra);
+            }
+
+            @Override
+            public void onCompleted(IMediaPlayer mp) {
+                Log.e(TAG, " --- onCompleted ---");
             }
         });
 
@@ -283,7 +325,7 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         if (videoView != null) {
-            videoView.pause();
+            videoView.onPause();
         }
     }
 
