@@ -152,6 +152,18 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onBufferStart() {
+                super.onBufferStart();
+                Log.e(TAG, " --- onBufferStart ---");
+            }
+
+            @Override
+            public void onBufferEnd() {
+                super.onBufferEnd();
+                Log.e(TAG, " --- onBufferEnd ---");
+            }
+
+            @Override
             public void onPause() {
                 Log.e(TAG, " --- onPause ---");
             }

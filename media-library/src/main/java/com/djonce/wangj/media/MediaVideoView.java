@@ -30,7 +30,7 @@ import tv.danmaku.ijk.media.player.misc.ITrackInfo;
 
 /**
  * 自定义的媒体播放器
- *
+ * <p/>
  * Created by wangj on 2016/5/23.
  */
 public class MediaVideoView extends RelativeLayout implements MediaController.MediaPlayerControl {
@@ -78,7 +78,9 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
     private boolean mCanSeekForward = true;
 
     private VideoMode videoMode = VideoMode.NORMAL;
-    /** Subtitle rendering widget overlaid on top of the video. */
+    /**
+     * Subtitle rendering widget overlaid on top of the video.
+     */
 
     private Context mAppContext;
     private IRenderView mRenderView;
@@ -431,10 +433,13 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                         case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
                             Log.d(TAG, "MEDIA_INFO_BUFFERING_START:");
                             // 在数据缓冲
+                            if (mMediaController != null) {
+                                mMediaController.showProgress(true);
+                            }
                             break;
                         case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
 
-                            if(mMediaController != null) {
+                            if (mMediaController != null) {
                                 mMediaController.showProgress(false);
                             }
                             Log.d(TAG, "MEDIA_INFO_BUFFERING_END:");
@@ -477,9 +482,6 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                     Log.d(TAG, "Error: " + framework_err + "," + impl_err);
                     mCurrentState = STATE_ERROR;
                     mTargetState = STATE_ERROR;
-//                    if (mMediaController != null) {
-//                        mMediaController.hide();
-//                    }
 
                     /* If an error handler has been supplied, use it and finish. */
                     if (mOnErrorListener != null) {
@@ -493,32 +495,29 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                      * if we're attached to a window. When we're going away and no
                      * longer have a window, don't bother showing the user an error.
                      */
-                    if (getWindowToken() != null) {
-                        Resources r = mAppContext.getResources();
-                        String message;
+                    String message;
 
-                        if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
-                            message = "Invalid progressive playback";
-                        } else {
-                            message = "Unknown";
-                        }
+                    if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
+                        message = "Invalid progressive playback";
+                    } else {
+                        message = "Unknown";
+                    }
 
-                        new AlertDialog.Builder(getContext())
-                                .setMessage(message)
-                                .setPositiveButton("OK",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
+                    new AlertDialog.Builder(getContext())
+                            .setMessage(message)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
                                             /* If we get here, there is no onError listener, so
                                              * at least inform them that the video is over.
                                              */
-                                                if (mOnCompletionListener != null) {
-                                                    mOnCompletionListener.onCompletion(mMediaPlayer);
-                                                }
+                                            if (mOnCompletionListener != null) {
+                                                mOnCompletionListener.onCompletion(mMediaPlayer);
                                             }
-                                        })
-                                .setCancelable(false)
-                                .show();
-                    }
+                                        }
+                                    })
+                            .setCancelable(false)
+                            .show();
                     return true;
                 }
             };
@@ -663,7 +662,7 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
         if (isInPlaybackState() && mMediaController != null) {
 
             Log.e(TAG, "onTouchEvent: " + getVideoMode().name());
-            switch (getVideoMode()){
+            switch (getVideoMode()) {
                 case NORMAL:
                     if (mMediaPlayer.isPlaying()) {
                         pause();
@@ -676,7 +675,7 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
                     if (mMediaPlayer.isPlaying()) {
                         pause();
                         mMediaController.show(3600000);
-                    }else {
+                    } else {
                         resume();
                         mMediaController.hide();
                     }

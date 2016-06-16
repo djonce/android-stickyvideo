@@ -148,7 +148,6 @@ public class MediaPlayerView extends RelativeLayout {
                     case IMediaPlayer.MEDIA_INFO_NOT_SEEKABLE:
                         Log.d(TAG, "MEDIA_INFO_NOT_SEEKABLE:");
                         // 不可seek
-
                         break;
                     case IMediaPlayer.MEDIA_INFO_METADATA_UPDATE:
                         Log.d(TAG, "MEDIA_INFO_METADATA_UPDATE:");
@@ -279,12 +278,18 @@ public class MediaPlayerView extends RelativeLayout {
 
     public void onPause() {
         mediaPlayerController.onPause();
+        if (playerStateListener != null) {
+            playerStateListener.onPause();
+        }
         // 截取一张视频图片
         Log.d(TAG, "onPause: 暂停");
     }
 
     public void onResume() {
         mediaPlayerController.onResume();
+        if (playerStateListener != null) {
+            playerStateListener.onResume();
+        }
         Log.d(TAG, "onResume: 活动");
     }
 
