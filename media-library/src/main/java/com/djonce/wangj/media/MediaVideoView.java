@@ -688,9 +688,11 @@ public class MediaVideoView extends RelativeLayout implements MediaController.Me
 
                     break;
                 case SMALL:
-                    // 缩小状态下，不可点击
+                    //
                     if (mMediaPlayer.isPlaying()) {
                         //
+                        pause();
+                        mMediaController.show(3600000);
                     }
                     return true;
                 default:
