@@ -28,7 +28,6 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
     private static final String TAG = MediaPlayerController.class.getSimpleName();
     private MediaController.MediaPlayerControl mPlayer;
     private Context mContext;
-    private View mContainer;
     private ImageView mVideoPlayBtn;
     private SeekBar mVideoSeekBar;
     private TextView mVideoTotalTime;
@@ -40,7 +39,6 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
 
     private boolean mDragging;
     private boolean mShowing;
-    private boolean isFulledStated = false;
     private static final int sDefaultTimeout = 3000;
     private static final int sMaxTimeout = 3600000;
     private static final int FADE_OUT = 1;
@@ -69,7 +67,7 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
     }
 
     private void initControllerView() {
-        mContainer = LayoutInflater.from(mContext).inflate(R.layout.media_player_controller_view, null);
+        View mContainer = LayoutInflater.from(mContext).inflate(R.layout.media_player_controller_view, null);
         mVideoPlayBtn = (ImageView) mContainer.findViewById(R.id.video_play_btn);
         mVideoSeekBar = (SeekBar) mContainer.findViewById(R.id.video_seek_bar);
         mVideoPlayTimeLeft = (TextView) mContainer.findViewById(R.id.video_play_time_left);
@@ -317,17 +315,24 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         public void onClick(View v) {
             // 执行 放大 缩小的功能即可， 显示的功能放在 controller show的时候处理
 
-            if (!isFulledStated) {
-                if(listener != null) {
-                    listener.onZoomBig();
+            if (mPlayer != null && mPlayer instanceof MediaVideoView) {
+                switch (((MediaVideoView)mPlayer).getVideoMode()) {
+                    case SMALL:
+
+                        break;
+                    case NORMAL:
+                        if(listener != null) {
+                            listener.onZoomBig();
+                        }
+                        break;
+                    case FULL:
+                        if(listener != null) {
+                            listener.onZoomSmall();
+                        }
+                        break;
                 }
-                isFulledStated = true;
-            }else {
-                if(listener != null) {
-                    listener.onZoomSmall();
-                }
-                isFulledStated = false;
             }
+
         }
     };
 
@@ -380,7 +385,9 @@ public class MediaPlayerController extends FrameLayout implements IMediaControll
         if(mPlayer != null) {
             mPlayer.start();
             // 隐藏播放按钮
+
             show();
+
             mVideoPlayBtn.setVisibility(GONE);
             mVideoSeekBar.invalidate();
             setSeekBarProgress();
